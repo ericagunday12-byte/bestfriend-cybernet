@@ -1,14 +1,15 @@
 // Firebase Configuration
-// Get these values from your Firebase Console: https://console.firebase.google.com/
+// Production credentials for BESTFRIEND Cybernet Enterprises
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY_HERE",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID_HERE",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyDZAMrwljPLnS_Ipqj1Y0FLT4Hf4M64eRw",
+    authDomain: "bestfriend-cybernet.firebaseapp.com",
+    databaseURL: "https://bestfriend-cybernet-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "bestfriend-cybernet",
+    storageBucket: "bestfriend-cybernet.firebasestorage.app",
+    messagingSenderId: "949732764719",
+    appId: "1:949732764719:web:0ac195de9ad10d47abeada",
+    measurementId: "G-ZPQ1KL8MZG"
 };
 
 // Initialize Firebase
@@ -21,3 +22,4 @@ const storage = firebase.storage();
 
 // Enable offline persistence for Realtime Database
 firebase.database().ref().keepSynced(true);
+
