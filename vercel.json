@@ -1,27 +1,6 @@
 {
-  "buildCommand": "echo 'Static site - no build needed'",
+  "buildCommand": "echo 'Static site - no build'",
   "outputDirectory": ".",
   "cleanUrls": false,
-  "trailingSlash": false,
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/$1.html"
-    },
-    {
-      "source": "/",
-      "destination": "/LOGIN.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600"
-        }
-      ]
-    }
-  ]
+  "trailingSlash": false
 }
