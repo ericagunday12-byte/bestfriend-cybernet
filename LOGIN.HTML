@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>BESTFRIEND'S CYBERNET ENTERPRISES - Login</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-container {
+        background-color: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .logo-section {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .logo-section img {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 15px;
+    }
+
+    .logo-section h1 {
+        color: #2c3e50;
+        font-size: 20px;
+        margin-bottom: 5px;
+    }
+
+    .logo-section p {
+        color: #7f8c8d;
+        font-size: 12px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #2c3e50;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #bdc3c7;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+    }
+
+    .login-btn {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .login-btn:active {
+        transform: translateY(0);
+    }
+
+    .footer-text {
+        text-align: center;
+        color: #7f8c8d;
+        font-size: 12px;
+        margin-top: 20px;
+    }
+
+    .error-message {
+        display: none;
+        background-color: #e74c3c;
+        color: white;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .success-message {
+        display: none;
+        background-color: #27ae60;
+        color: white;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 14px;
+    }
+</style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="logo-section">
+        <img src="logo.png" alt="Logo">
+        <h1>BESTFRIEND'S CYBERNET</h1>
+        <h1>ENTERPRISES</h1>
+        <p>Sta. Elena Virac, Catanduanes</p>
+    </div>
+
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="login-btn">LOG IN</button>
+    </form>
+
+    <div class="footer-text">
+        <p>&copy; 2026 BESTFRIEND'S CYBERNET ENTERPRISES</p>
+    </div>
+</div>
+
+<script>
+document.getElementById("loginForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const errorMessage = document.getElementById("errorMessage");
+    const successMessage = document.getElementById("successMessage");
+
+    // Reset messages
+    errorMessage.style.display = "none";
+    successMessage.style.display = "none";
+
+    // Simple validation (you can replace this with actual backend authentication)
+    if (username === "" || password === "") {
+        errorMessage.textContent = "Please fill in all fields";
+        errorMessage.style.display = "block";
+        return;
+    }
+
+    // Check if user is admin
+    if (username === "admin" && password === "admin123") {
+        successMessage.textContent = "Admin login successful! Redirecting...";
+        successMessage.style.display = "block";
+        
+        // Store admin session
+        localStorage.setItem("userRole", "admin");
+        localStorage.setItem("currentUser", username);
+        
+        // Redirect after 1.5 seconds
+        setTimeout(function() {
+            window.location.href = "CASH_CLOSING.HTML";
+        }, 1500);
+    } else {
+        // Check if it's a normal user
+        const users = JSON.parse(localStorage.getItem("users")) || [];
+        const user = users.find(u => u.username === username && u.password === password);
+        
+        if (user) {
+            successMessage.textContent = "Login successful! Redirecting...";
+            successMessage.style.display = "block";
+            
+            // Store user session
+            localStorage.setItem("userRole", "user");
+            localStorage.setItem("currentUser", username);
+            
+            // Redirect after 1.5 seconds
+            setTimeout(function() {
+                window.location.href = "CASH CLOSING.HTML";
+            }, 1500);
+        } else {
+            errorMessage.textContent = "Invalid username or password";
+            errorMessage.style.display = "block";
+        }
+    }
+
+    // Clear password field
+    document.getElementById("password").value = "";
+});
+</script>
+
+</body>
+</html>

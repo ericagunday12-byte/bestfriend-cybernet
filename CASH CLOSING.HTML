@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>COMPUTER WORKS (CLOSING)</title>
+<style>
+
+  
+    container {
+        display: block;
+        background-color: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Soft shadow */
+        border: 1px solid #ddd;
+        max-width: 450px;
+        width: 100%;
+    }
+    body { font-family: Arial; max-width: 1000px; margin: 30px auto; }
+    h2 { text-align: left; }
+    table {   width: 100%; border-collapse: collapse; }
+    td, th {  padding: 8px; border: 1px solid #ccc; text-align: center; }
+    input { width: 80px; padding: 5px;  
+        border: none; 
+        border-bottom: 0px solid black; /* Ang line sa ilalim */
+        outline: none; 
+        text-align: center;
+        background: transparent;}
+    .result { font-size: 22px; margin-top: 20px; font-weight: bold; color: #2c3e50; border-top: 2px solid #ccc; padding-top: 10px; }
+    
+    .date-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+    
+    .date-section label {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-right: 10px;
+    }
+    
+    .date-section input[type="date"] {
+        width: auto;
+        padding: 8px 12px;
+        border: 1px solid #bdc3c7;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    
+    .save-btn {
+        padding: 10px 20px;
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+    
+    .save-btn:hover {
+        background-color: #229954;
+    }
+    
+    .records-section {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        border: 2px solid black;
+    }
+    
+    .records-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        background-color: white;
+    }
+    
+    .records-table thead {
+        background-color: #667eea;
+        color: white;
+    }
+    
+    .records-table th,
+    .records-table td {
+        padding: 12px;
+        border: 2px solid black;
+        text-align: center;
+    }
+    
+    .records-table tbody tr:nth-child(odd) {
+        background-color: #f5f5f5;
+    }
+    
+    .records-table tbody tr:hover {
+        background-color: #e8e8e8;
+    }
+    
+    .delete-btn {
+        padding: 5px 10px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+    
+    .delete-btn:hover {
+        background-color: #c82333;
+    }
+    
+    .message {
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        text-align: center;
+        display: none;
+    }
+    
+    .message.success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        display: block;
+    }
+    
+    .message.error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        display: block;
+    }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        overflow-y: auto;
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 30px;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        position: relative;
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+    }
+    
+    .modal-header h2 {
+        margin: 0;
+        color: #2c3e50;
+    }
+    
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 28px;
+        font-weight: bold;
+        color: #aaa;
+        cursor: pointer;
+    }
+    
+    .close-modal:hover {
+        color: #000;
+    }
+    
+    .open-modal-btn {
+        padding: 12px 24px;
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 14px;
+        margin-top: 15px;
+    }
+    
+    .open-modal-btn:hover {
+        background-color: #0b7dda;
+    }
+    
+    .profile-photo-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .profile-photo {
+        width: 100px;
+        height: 100px;
+        border: 2px solid #333;
+        border-radius: 4px;
+        object-fit: cover;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .search-bar {
+        margin-top: 17px;
+        padding: 12px 16px;
+        border: 2px solid #667eea;
+        border-radius: 6px;
+        font-size: 14px;
+        width: 400px;
+        outline: none;
+        text-align: left;
+    }
+    
+    .search-bar:focus {
+        border-color: #2196F3;
+        box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+    }
+</style>
+</head>
+
+<body>
+
+
+
+<!-- Records Section -->
+<div class="records-section">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <img src="logo.png" alt="Logo" style="width: 50px; height: 50px; object-fit: contain;">
+      <div>
+        <h1 style="color: blue; margin: 0;">BESTFRIEND'S CYBERNET ENTERPRISES</h1s>
+         <center>
+                <p style="margin-top: 0px; font-size: 14px; color: #555;">Sta. Elena Virac, Catanduanes</p>
+            </center> 
+        
+      </div>
+    </div>
+    <button onclick="logoutUser()" style="padding: 8px 12px; background-color: #dc3545; border-radius:5px; color: white; border: none;  cursor: pointer; font-weight: bold; font-size: 16px;">✕</button>
+</div>
+
+  <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px; justify-content: center;">
+    <h2 style=" margin-top: -40px;">📊 Daily Closing Records</h2>
+    <div class="profile-photo-container" style="margin-left: auto; margin-top: 10px;">
+      <img id="profilePhoto" class="profile-photo" alt="Profile Photo">
+      <p id="currentUser" style="margin-top: 8px; font-weight: bold; color: #333; text-align: center; font-size: 14px;"></p>
+    </div>
+  </div>
+  <div style="display: flex; margin-top: -70px; gap: 10px; margin-bottom: 20px; align-items: center;">
+    <button id="firstActionBtn" class="open-modal-btn" onclick="handleFirstButton()">➕ Add New Entry</button>
+    <button id="userListBtn" class="open-modal-btn" onclick="openUserListModal()" style="background-color: #4CAF50; display: none;">👥 User List</button>
+    <button class="open-modal-btn" onclick="openProfileModal()" style="background-color: #9C27B0;">👤 Profile</button>
+    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search by date or cash amount..." oninput="searchRecords()">
+  </div>
+    <table class="records-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th id="userColumnHeader" style="display: none;">User</th>
+                <th>Cash List</th>
+                <th>Counts</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody id="recordsTableBody">
+            <tr>
+                <td colspan="5" style="color: #999;">No records yet</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Profile Modal -->
+<div id="profileModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>👤 My Profile</h2>
+            <button class="close-modal" onclick="closeProfileModal()">&times;</button>
+        </div>
+        
+        <div id="profileMessageBox" class="message"></div>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img id="profilePhotoLarge" style="width: 150px; height: 150px; border: 3px solid #333; border-radius: 8px; object-fit: cover; background-color: #f0f0f0; margin-bottom: 15px;" alt="Profile Photo">
+            <div>
+                <input type="file" id="profilePhotoInput" accept="image/*" onchange="uploadProfilePhoto(event)" style="display: none;">
+                <button class="open-modal-btn" onclick="document.getElementById('profilePhotoInput').click()" style="background-color: #2196F3;">📷 Upload Photo</button>
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; color: #333;">Username:</label>
+            <input type="text" id="profileUsername" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px; background-color: #f5f5f5; box-sizing: border-box;" readonly>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="font-weight: bold; color: #333;">New Password (optional):</label>
+            <input type="password" id="newPassword" placeholder="Leave blank to keep current password" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px; box-sizing: border-box;">
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button class="open-modal-btn" onclick="saveProfile()" style="background-color: #27ae60; flex: 1;">💾 Save Changes</button>
+            <button class="open-modal-btn" onclick="closeProfileModal()" style="background-color: #999; flex: 1;">❌ Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div id="addUserModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>👥 Add New User</h2>
+            <button class="close-modal" onclick="closeAddUserModal()">&times;</button>
+        </div>
+        
+        <div id="addUserMessageBox" class="message"></div>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; color: #333;">Username:</label>
+            <input type="text" id="newUsername" placeholder="Enter username" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px; box-sizing: border-box;">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; color: #333;">Password:</label>
+            <input type="password" id="newUserPassword" placeholder="Enter password" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px; box-sizing: border-box;">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="font-weight: bold; color: #333;">Confirm Password:</label>
+            <input type="password" id="newUserPasswordConfirm" placeholder="Confirm password" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px; box-sizing: border-box;">
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button class="open-modal-btn" onclick="addNewUser()" style="background-color: #27ae60; flex: 1;">✓ Add User</button>
+            <button class="open-modal-btn" onclick="closeAddUserModal()" style="background-color: #999; flex: 1;">❌ Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- User List Modal -->
+<div id="userListModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>👥 User List</h2>
+            <button class="close-modal" onclick="closeUserListModal()">&times;</button>
+        </div>
+        
+        <input type="text" id="userSearchInput" class="search-bar" placeholder="🔍 Search users..." oninput="searchUsers()" style="margin-bottom: 15px;">
+        
+        <table class="records-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="userListTableBody">
+                <tr>
+                    <td colspan="2" style="color: #999;">No users found</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Computer Works Modal -->
+<div id="closingModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>💰 Computer Works (Closing)</h2>
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+        </div>
+        
+        <div id="messageBox" class="message"></div>
+        
+        <div class="date-section">
+            <label for="closingDate">Closing Date:</label>
+            <input type="date" id="closingDate">
+        </div>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+           
+            <tr>
+                <th colspan="3" style="border: 1px solid #ccc; padding: 8px;">COMPUTER WORKS (CLOSING)</th>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #ccc; padding: 8px;">CASH</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">COUNTS</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">AMOUNT</th>
+            </tr>
+            <tr><td style="border: 1px solid #ccc; padding: 8px;">1000</td><td style="border: 1px solid #ccc; padding: 8px;"><input type="number" class="count-input" oninput="compute()"></td><td style="border: 1px solid #ccc; padding: 8px;" class="amt">0</td></tr>
+            <tr><td style="border: 1px solid #ccc; padding: 8px;">500</td><td style="border: 1px solid #ccc; padding: 8px;"><input type="number" class="count-input" oninput="compute()"></td><td style="border: 1px solid #ccc; padding: 8px;" class="amt">0</td></tr>
+            <tr><td style="border: 1px solid #ccc; padding: 8px;">200</td><td style="border: 1px solid #ccc; padding: 8px;"><input type="number" class="count-input" oninput="compute()"></td><td style="border: 1px solid #ccc; padding: 8px;" class="amt">0</td></tr>
+            <tr><td style="border: 1px solid #ccc; padding: 8px;">100</td><td style="border: 1px solid #ccc; padding: 8px;"><input type="number" class="count-input" oninput="compute()"></td><td style="border: 1px solid #ccc; padding: 8px;" class="amt">0</td></tr>
+            <tr><td style="border: 1px solid #ccc; padding: 8px;">50</td><td style="border: 1px solid #ccc; padding: 8px;"><input type="number" class="count-input" oninput="compute()"></td><td style="border: 1px solid #ccc; padding: 8px;" class="amt">0</td></tr>
+            <tr><td style="border: 1px solid #ccc; padding: 8px;">20</td><td style="border: 1px solid #ccc; padding: 8px;"><input type="number" class="count-input" oninput="compute()"></td><td style="border: 1px solid #ccc; padding: 8px;" class="amt">0</td></tr>
+            <tr><td style="border: 1px solid #ccc; padding: 8px;">10</td><td style="border: 1px solid #ccc; padding: 8px;"><input type="number" class="count-input" oninput="compute()"></td><td style="border: 1px solid #ccc; padding: 8px;" class="amt">0</td></tr>
+            <tr><td style="border: 1px solid #ccc; padding: 8px;">5</td><td style="border: 1px solid #ccc; padding: 8px;"><input type="number" class="count-input" oninput="compute()"></td><td style="border: 1px solid #ccc; padding: 8px;" class="amt">0</td></tr>
+            <tr><td style="border: 1px solid #ccc; padding: 8px;">1</td><td style="border: 1px solid #ccc; padding: 8px;"><input type="number" class="count-input" oninput="compute()"></td><td style="border: 1px solid #ccc; padding: 8px;" class="amt">0</td></tr>
+            <tr>
+                <th colspan="2" style="text-align: right; color:brown; border: 1px solid #ccc; padding: 8px;">TOTAL AMOUNT:</th>
+                <th style="border: 1px solid #ccc; padding: 8px;" id="sales-container">₱ <span id="sales">0</span></th>
+            </tr>
+        </table>
+        
+        <div style="display: flex; gap: 10px;">
+            <button class="open-modal-btn" onclick="saveRecord()" style="background-color: #27ae60; flex: 1;">💾 Save Record</button>
+            <button class="open-modal-btn" onclick="closeModal()" style="background-color: #999; flex: 1;">❌ Cancel</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+// Check user session
+document.addEventListener("DOMContentLoaded", function() {
+    const userRole = localStorage.getItem("userRole");
+    const currentUser = localStorage.getItem("currentUser");
+    
+    if (!userRole || !currentUser) {
+        alert("Please login first!");
+        window.location.href = "LOGIN.HTML";
+        return;
+    }
+    
+    document.getElementById("currentUser").textContent = currentUser;
+    
+    // Set button text based on user role
+    const firstActionBtn = document.getElementById("firstActionBtn");
+    const userListBtn = document.getElementById("userListBtn");
+    if (userRole === "admin") {
+        firstActionBtn.textContent = "👥 Add User";
+        firstActionBtn.style.backgroundColor = "#FF9800";
+        userListBtn.style.display = "block";
+    }
+    
+    // Set today's date as default
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("closingDate").value = today;
+    
+    // Load records
+    loadRecords();
+});
+
+function logoutUser() {
+    if (confirm("Are you sure you want to logout?")) {
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("currentUser");
+        window.location.href = "LOGIN.HTML";
+    }
+}
+
+function handleFirstButton() {
+    const userRole = localStorage.getItem("userRole");
+    if (userRole === "admin") {
+        openAddUserModal();
+    } else {
+        openModal();
+    }
+}
+
+function openModal() {
+    document.getElementById("closingModal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("closingModal").style.display = "none";
+}
+
+function openProfileModal() {
+    const currentUser = localStorage.getItem("currentUser");
+    
+    document.getElementById("profileUsername").value = currentUser;
+    document.getElementById("newPassword").value = "";
+    
+    // Load profile photo if exists
+    loadProfilePhotoInModal();
+    
+    document.getElementById("profileModal").style.display = "block";
+}
+
+function closeProfileModal() {
+    document.getElementById("profileModal").style.display = "none";
+}
+
+function openAddUserModal() {
+    document.getElementById("newUsername").value = "";
+    document.getElementById("newUserPassword").value = "";
+    document.getElementById("newUserPasswordConfirm").value = "";
+    document.getElementById("addUserMessageBox").style.display = "none";
+    document.getElementById("addUserModal").style.display = "block";
+}
+
+function closeAddUserModal() {
+    document.getElementById("addUserModal").style.display = "none";
+}
+
+function addNewUser() {
+    const username = document.getElementById("newUsername").value.trim();
+    const password = document.getElementById("newUserPassword").value;
+    const passwordConfirm = document.getElementById("newUserPasswordConfirm").value;
+    const messageBox = document.getElementById("addUserMessageBox");
+    
+    // Validation
+    if (!username) {
+        showMessage(messageBox, "Please enter a username", "error");
+        return;
+    }
+    
+    if (!password) {
+        showMessage(messageBox, "Please enter a password", "error");
+        return;
+    }
+    
+    if (password !== passwordConfirm) {
+        showMessage(messageBox, "Passwords do not match", "error");
+        return;
+    }
+    
+    // Get existing users
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    
+    // Check if username already exists
+    if (users.some(u => u.username === username)) {
+        showMessage(messageBox, "Username already exists", "error");
+        return;
+    }
+    
+    // Add new user
+    users.push({
+        username: username,
+        password: password,
+        role: "user"
+    });
+    
+    // Save to localStorage
+    localStorage.setItem("users", JSON.stringify(users));
+    
+    // Show success message
+    showMessage(messageBox, "✓ User created successfully!", "success");
+    
+    // Close modal after 1.5 seconds
+    setTimeout(function() {
+        closeAddUserModal();
+    }, 1500);
+}
+
+function openUserListModal() {
+    loadUserList();
+    document.getElementById("userListModal").style.display = "block";
+}
+
+function closeUserListModal() {
+    document.getElementById("userListModal").style.display = "none";
+}
+
+function loadUserList() {
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const tableBody = document.getElementById("userListTableBody");
+    
+    if (users.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="2" style="color: #999;">No users found</td></tr>';
+        return;
+    }
+    
+    tableBody.innerHTML = users.map((user, index) => {
+        return `
+            <tr>
+                <td><strong>${user.username}</strong></td>
+                <td>
+                    <button class="delete-btn" onclick="deleteUser('${user.username}')">🗑️ Delete</button>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function searchUsers() {
+    const searchInput = document.getElementById("userSearchInput").value.toLowerCase();
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const tableBody = document.getElementById("userListTableBody");
+    
+    let displayUsers = users;
+    
+    if (searchInput.trim() !== "") {
+        displayUsers = users.filter(user => user.username.toLowerCase().includes(searchInput));
+    }
+    
+    if (displayUsers.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="2" style="color: #999;">No users found</td></tr>';
+        return;
+    }
+    
+    tableBody.innerHTML = displayUsers.map((user, index) => {
+        return `
+            <tr>
+                <td><strong>${user.username}</strong></td>
+                <td>
+                    <button class="delete-btn" onclick="deleteUser('${user.username}')">🗑️ Delete</button>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function deleteUser(username) {
+    if (confirm(`Are you sure you want to delete user "${username}"?`)) {
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+        users = users.filter(u => u.username !== username);
+        localStorage.setItem("users", JSON.stringify(users));
+        loadUserList();
+    }
+}
+
+function uploadProfilePhoto(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const photoData = e.target.result;
+            const currentUser = localStorage.getItem("currentUser");
+            
+            // Save photo to localStorage per user
+            let userPhotos = JSON.parse(localStorage.getItem("userPhotos")) || {};
+            userPhotos[currentUser] = photoData;
+            localStorage.setItem("userPhotos", JSON.stringify(userPhotos));
+            
+            // Display the photo in both places
+            document.getElementById("profilePhoto").src = photoData;
+            document.getElementById("profilePhotoLarge").src = photoData;
+            
+            showMessage(document.getElementById("profileMessageBox"), "✓ Photo uploaded successfully!", "success");
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function loadProfilePhotoInModal() {
+    const currentUser = localStorage.getItem("currentUser");
+    let userPhotos = JSON.parse(localStorage.getItem("userPhotos")) || {};
+    
+    if (userPhotos[currentUser]) {
+        document.getElementById("profilePhotoLarge").src = userPhotos[currentUser];
+    } else {
+        document.getElementById("profilePhotoLarge").src = "";
+        document.getElementById("profilePhotoLarge").style.display = "none";
+        document.getElementById("profilePhotoLarge").style.display = "block";
+    }
+}
+
+function saveProfile() {
+    const newPassword = document.getElementById("newPassword").value;
+    const currentUser = localStorage.getItem("currentUser");
+    const messageBox = document.getElementById("profileMessageBox");
+    
+    if (newPassword) {
+        // Update password in users array
+        const users = JSON.parse(localStorage.getItem("users")) || [];
+        const userIndex = users.findIndex(u => u.username === currentUser);
+        
+        if (userIndex !== -1) {
+            users[userIndex].password = newPassword;
+            localStorage.setItem("users", JSON.stringify(users));
+            showMessage(messageBox, "✓ Password updated successfully!", "success");
+        }
+    } else {
+        showMessage(messageBox, "✓ Profile settings saved!", "success");
+    }
+    
+    setTimeout(function() {
+        closeProfileModal();
+    }, 1500);
+}
+
+// Close modal when clicking outside the modal content
+window.onclick = function(event) {
+    const modal = document.getElementById("closingModal");
+    const profileModal = document.getElementById("profileModal");
+    const addUserModal = document.getElementById("addUserModal");
+    const userListModal = document.getElementById("userListModal");
+    
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+    if (event.target == profileModal) {
+        profileModal.style.display = "none";
+    }
+    if (event.target == addUserModal) {
+        addUserModal.style.display = "none";
+    }
+    if (event.target == userListModal) {
+        userListModal.style.display = "none";
+    }
+}
+
+function saveRecord() {
+    const date = document.getElementById("closingDate").value;
+    const totalAmount = document.getElementById("sales").innerText;
+    const currentUser = localStorage.getItem("currentUser");
+    const messageBox = document.getElementById("messageBox");
+    
+    if (!date) {
+        showMessage(messageBox, "Please select a date", "error");
+        return;
+    }
+    
+    if (totalAmount === "0") {
+        showMessage(messageBox, "Please enter amounts before saving", "error");
+        return;
+    }
+    
+    // Get breakdown of cash and counts
+    const denoms = [1000, 500, 200, 100, 50, 20, 10, 5, 1];
+    const inputs = document.querySelectorAll(".count-input");
+    const breakdown = [];
+    
+    for (let i = 0; i < inputs.length; i++) {
+        const count = Number(inputs[i].value) || 0;
+        if (count > 0) {
+            breakdown.push({
+                cash: denoms[i],
+                count: count
+            });
+        }
+    }
+    
+    // Get existing records
+    const records = JSON.parse(localStorage.getItem("closingRecords")) || [];
+    
+    // Check if record already exists for this date AND user
+    const existingIndex = records.findIndex(r => r.date === date && r.user === currentUser);
+    if (existingIndex !== -1) {
+        if (confirm("Record for this date already exists. Do you want to overwrite it?")) {
+            records[existingIndex] = {
+                date: date,
+                breakdown: breakdown,
+                total: totalAmount,
+                user: currentUser,
+                timestamp: new Date().toLocaleString()
+            };
+        } else {
+            return;
+        }
+    } else {
+        // Add new record
+        records.push({
+            date: date,
+            breakdown: breakdown,
+            total: totalAmount,
+            user: currentUser,
+            timestamp: new Date().toLocaleString()
+        });
+    }
+    
+    // Save to localStorage
+    localStorage.setItem("closingRecords", JSON.stringify(records));
+    
+    // Show success message
+    showMessage(messageBox, "✓ Record saved successfully!", "success");
+    
+    // Clear form
+    setTimeout(function() {
+        clearForm();
+        loadRecords();
+        messageBox.style.display = "none";
+        closeModal();
+    }, 1500);
+}
+
+function clearForm() {
+    // Clear all inputs
+    document.querySelectorAll(".count-input").forEach(input => {
+        input.value = "";
+    });
+    document.querySelectorAll(".amt").forEach(cell => {
+        cell.innerText = "0";
+    });
+    document.getElementById("sales").innerText = "0";
+    
+    // Set today's date
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("closingDate").value = today;
+}
+
+function loadRecords() {
+    const records = JSON.parse(localStorage.getItem("closingRecords")) || [];
+    const currentUser = localStorage.getItem("currentUser");
+    const userRole = localStorage.getItem("userRole");
+    const tableBody = document.getElementById("recordsTableBody");
+    const userColumnHeader = document.getElementById("userColumnHeader");
+    
+    // Show User column only for admin
+    userColumnHeader.style.display = userRole === "admin" ? "table-cell" : "none";
+    
+    // If admin, show all records; if normal user, show only their records
+    let displayRecords = userRole === "admin" ? records : records.filter(r => r.user === currentUser);
+    
+    const colspan = userRole === "admin" ? 5 : 4;
+    
+    if (displayRecords.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="${colspan}" style="color: #999;">No records yet</td></tr>`;
+        return;
+    }
+    
+    // Sort records by date in descending order
+    displayRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    tableBody.innerHTML = displayRecords.map((record, index) => {
+        // Build cash list and counts display
+        const cashList = record.breakdown ? record.breakdown.map(b => `₱${b.cash}`).join(", ") : "N/A";
+        const countsList = record.breakdown ? record.breakdown.map(b => b.count).join(", ") : "N/A";
+        
+        const userCell = userRole === "admin" ? `<td><strong>${record.user}</strong></td>` : "";
+        
+        return `
+            <tr>
+                <td>${new Date(record.date).toLocaleDateString()}</td>
+                ${userCell}
+                <td style="text-align: left; font-size: 12px;">${cashList}</td>
+                <td style="text-align: left; font-size: 12px;">${countsList}</td>
+                <td><strong>₱ ${record.total || record.amount || 0}</strong></td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function searchRecords() {
+    const searchInput = document.getElementById("searchInput").value.toLowerCase();
+    const records = JSON.parse(localStorage.getItem("closingRecords")) || [];
+    const currentUser = localStorage.getItem("currentUser");
+    const userRole = localStorage.getItem("userRole");
+    const tableBody = document.getElementById("recordsTableBody");
+    const userColumnHeader = document.getElementById("userColumnHeader");
+    
+    // Show User column only for admin
+    userColumnHeader.style.display = userRole === "admin" ? "table-cell" : "none";
+    
+    // If admin, search all records; if normal user, search only their records
+    let displayRecords = userRole === "admin" ? records : records.filter(r => r.user === currentUser);
+    
+    const colspan = userRole === "admin" ? 5 : 4;
+    
+    // Filter records based on search input
+    if (searchInput.trim() !== "") {
+        displayRecords = displayRecords.filter(record => {
+            const dateStr = new Date(record.date).toLocaleDateString().toLowerCase();
+            const totalStr = (record.total || record.amount || "0").toString().toLowerCase();
+            const cashList = record.breakdown ? record.breakdown.map(b => b.cash).join(" ") : "";
+            const userStr = record.user ? record.user.toLowerCase() : "";
+            
+            return dateStr.includes(searchInput) || totalStr.includes(searchInput) || cashList.includes(searchInput) || userStr.includes(searchInput);
+        });
+    }
+    
+    if (displayRecords.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="${colspan}" style="color: #999;">No records found</td></tr>`;
+        return;
+    }
+    
+    // Sort records by date in descending order
+    displayRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    tableBody.innerHTML = displayRecords.map((record, index) => {
+        // Build cash list and counts display
+        const cashList = record.breakdown ? record.breakdown.map(b => `₱${b.cash}`).join(", ") : "N/A";
+        const countsList = record.breakdown ? record.breakdown.map(b => b.count).join(", ") : "N/A";
+        
+        const userCell = userRole === "admin" ? `<td><strong>${record.user}</strong></td>` : "";
+        
+        return `
+            <tr>
+                <td>${new Date(record.date).toLocaleDateString()}</td>
+                ${userCell}
+                <td style="text-align: left; font-size: 12px;">${cashList}</td>
+                <td style="text-align: left; font-size: 12px;">${countsList}</td>
+                <td><strong>₱ ${record.total || record.amount || 0}</strong></td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function deleteRecord(dateToDelete, userToDelete) {
+    if (confirm("Are you sure you want to delete this record?")) {
+        const records = JSON.parse(localStorage.getItem("closingRecords")) || [];
+        const currentUser = localStorage.getItem("currentUser");
+        const userRole = localStorage.getItem("userRole");
+        
+        // Admin can delete any record, normal user can only delete their own
+        let filteredRecords;
+        if (userRole === "admin") {
+            filteredRecords = records.filter(r => !(r.date === dateToDelete && r.user === userToDelete));
+        } else {
+            filteredRecords = records.filter(r => !(r.date === dateToDelete && r.user === currentUser));
+        }
+        
+        localStorage.setItem("closingRecords", JSON.stringify(filteredRecords));
+        
+        loadRecords();
+    }
+}
+
+function showMessage(element, message, type) {
+    element.textContent = message;
+    element.className = "message " + type;
+    element.style.display = "block";
+}
+
+function compute() {
+    const denoms = [1000, 500, 200, 100, 50, 20, 10, 5, 1];
+    const inputs = document.querySelectorAll(".count-input");
+    const amounts = document.querySelectorAll(".amt");
+
+    let totalSales = 0;
+
+    for (let i = 0; i < inputs.length; i++) {
+        let count = Number(inputs[i].value) || 0;
+        let rowAmount = count * denoms[i];
+        
+        // I-update ang amount sa bawat row
+        amounts[i].innerText = rowAmount.toLocaleString();
+        
+        // I-add sa overall total
+        totalSales += rowAmount;
+    }
+
+    // I-display ang final total sales
+    document.getElementById("sales").innerText = totalSales.toLocaleString();
+}
+</script>
+
+</body>
+</html>
