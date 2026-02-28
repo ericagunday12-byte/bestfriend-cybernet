@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <title>COMPUTER WORKS (CLOSING)</title>
+<!-- Firebase Script -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js"></script>
 <style>
 
   
@@ -541,7 +546,7 @@ function addNewUser() {
         return;
     }
     
-    // Get existing users
+    // Get existing users from localStorage
     const users = JSON.parse(localStorage.getItem("users")) || [];
     
     // Check if username already exists
@@ -550,23 +555,77 @@ function addNewUser() {
         return;
     }
     
-    // Add new user
-    users.push({
-        username: username,
-        password: password,
-        role: "user"
-    });
-    
-    // Save to localStorage
-    localStorage.setItem("users", JSON.stringify(users));
-    
-    // Show success message
-    showMessage(messageBox, "✓ User created successfully!", "success");
-    
-    // Close modal after 1.5 seconds
-    setTimeout(function() {
-        closeAddUserModal();
-    }, 1500);
+    // Try to save to Firebase if available
+    if (typeof firebase !== 'undefined' && firebase.auth && firebase.database) {
+        const email = username + "@bestfriend.local";
+        
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                // Create user account
+                const uid = userCredential.user.uid;
+                
+                // Save user data to Firebase Realtime Database
+                return firebase.database().ref('users/' + uid).set({
+                    username: username,
+                    email: email,
+                    createdAt: new Date().toISOString(),
+                    role: "user",
+                    photo: null
+                });
+            })
+            .then(() => {
+                // Also save to localStorage for backward compatibility
+                users.push({
+                    username: username,
+                    password: password,
+                    role: "user"
+                });
+                localStorage.setItem("users", JSON.stringify(users));
+                
+                // Show success message
+                showMessage(messageBox, "✓ User created successfully!", "success");
+                
+                // Close modal after 1.5 seconds
+                setTimeout(function() {
+                    closeAddUserModal();
+                    loadUserList();
+                }, 1500);
+            })
+            .catch((error) => {
+                // If Firebase fails, fall back to localStorage only
+                console.log("Firebase error, using localStorage: " + error.message);
+                users.push({
+                    username: username,
+                    password: password,
+                    role: "user"
+                });
+                
+                localStorage.setItem("users", JSON.stringify(users));
+                
+                showMessage(messageBox, "✓ User created successfully!", "success");
+                
+                setTimeout(function() {
+                    closeAddUserModal();
+                    loadUserList();
+                }, 1500);
+            });
+    } else {
+        // Firebase not available, use localStorage only
+        users.push({
+            username: username,
+            password: password,
+            role: "user"
+        });
+        
+        localStorage.setItem("users", JSON.stringify(users));
+        
+        showMessage(messageBox, "✓ User created successfully!", "success");
+        
+        setTimeout(function() {
+            closeAddUserModal();
+            loadUserList();
+        }, 1500);
+    }
 }
 
 function openUserListModal() {
@@ -753,31 +812,39 @@ function saveRecord() {
     
     // Check if record already exists for this date AND user
     const existingIndex = records.findIndex(r => r.date === date && r.user === currentUser);
+    
+    const recordData = {
+        date: date,
+        breakdown: breakdown,
+        total: totalAmount,
+        user: currentUser,
+        timestamp: new Date().toISOString()
+    };
+    
     if (existingIndex !== -1) {
         if (confirm("Record for this date already exists. Do you want to overwrite it?")) {
-            records[existingIndex] = {
-                date: date,
-                breakdown: breakdown,
-                total: totalAmount,
-                user: currentUser,
-                timestamp: new Date().toLocaleString()
-            };
+            records[existingIndex] = recordData;
         } else {
             return;
         }
     } else {
         // Add new record
-        records.push({
-            date: date,
-            breakdown: breakdown,
-            total: totalAmount,
-            user: currentUser,
-            timestamp: new Date().toLocaleString()
-        });
+        records.push(recordData);
     }
     
     // Save to localStorage
     localStorage.setItem("closingRecords", JSON.stringify(records));
+    
+    // Try to save to Firebase if available
+    if (typeof firebase !== 'undefined' && firebase.database) {
+        const firebaseUID = localStorage.getItem("firebaseUID") || currentUser;
+        const recordKey = currentUser + "_" + date.replace(/-/g, "");
+        
+        firebase.database().ref('records/' + firebaseUID + '/' + recordKey).set(recordData)
+            .catch((error) => {
+                console.log("Firebase save error (using localStorage): " + error.message);
+            });
+    }
     
     // Show success message
     showMessage(messageBox, "✓ Record saved successfully!", "success");
@@ -789,6 +856,7 @@ function saveRecord() {
         messageBox.style.display = "none";
         closeModal();
     }, 1500);
+}
 }
 
 function clearForm() {
@@ -951,6 +1019,8 @@ function compute() {
     document.getElementById("sales").innerText = totalSales.toLocaleString();
 }
 </script>
+
+<script src="firebase-config.js"></script>
 
 </body>
 </html>
