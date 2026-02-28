@@ -445,32 +445,46 @@
 <script>
 // Check user session
 document.addEventListener("DOMContentLoaded", function() {
-    const userRole = localStorage.getItem("userRole");
-    const currentUser = localStorage.getItem("currentUser");
-    
-    if (!userRole || !currentUser) {
-        alert("Please login first!");
-        window.location.href = "LOGIN.HTML";
-        return;
+    try {
+        console.log("CASH-CLOSING page loaded");
+        const userRole = localStorage.getItem("userRole");
+        const currentUser = localStorage.getItem("currentUser");
+        
+        console.log("userRole:", userRole, "currentUser:", currentUser);
+        
+        if (!userRole || !currentUser) {
+            alert("Please login first!");
+            window.location.href = "LOGIN.HTML";
+            return;
+        }
+        
+        document.getElementById("currentUser").textContent = currentUser;
+        
+        // Set button text based on user role
+        const firstActionBtn = document.getElementById("firstActionBtn");
+        const userListBtn = document.getElementById("userListBtn");
+        
+        console.log("firstActionBtn exists:", !!firstActionBtn);
+        console.log("userListBtn exists:", !!userListBtn);
+        
+        if (userRole === "admin") {
+            firstActionBtn.textContent = "👥 Add User";
+            firstActionBtn.style.backgroundColor = "#FF9800";
+            userListBtn.style.display = "block";
+        }
+        
+        // Set today's date as default
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById("closingDate").value = today;
+        
+        // Load records
+        loadRecords();
+        
+        console.log("Page initialization complete");
+    } catch (error) {
+        console.error("Error in DOMContentLoaded:", error);
+        alert("Initialization error: " + error.message);
     }
-    
-    document.getElementById("currentUser").textContent = currentUser;
-    
-    // Set button text based on user role
-    const firstActionBtn = document.getElementById("firstActionBtn");
-    const userListBtn = document.getElementById("userListBtn");
-    if (userRole === "admin") {
-        firstActionBtn.textContent = "👥 Add User";
-        firstActionBtn.style.backgroundColor = "#FF9800";
-        userListBtn.style.display = "block";
-    }
-    
-    // Set today's date as default
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById("closingDate").value = today;
-    
-    // Load records
-    loadRecords();
 });
 
 function logoutUser() {
@@ -482,32 +496,56 @@ function logoutUser() {
 }
 
 function handleFirstButton() {
-    const userRole = localStorage.getItem("userRole");
-    if (userRole === "admin") {
-        openAddUserModal();
-    } else {
-        openModal();
+    try {
+        const userRole = localStorage.getItem("userRole");
+        console.log("handleFirstButton called, userRole:", userRole);
+        if (userRole === "admin") {
+            openAddUserModal();
+        } else {
+            openModal();
+        }
+    } catch (error) {
+        console.error("Error in handleFirstButton:", error);
+        alert("Error: " + error.message);
     }
+}
 }
 
 function openModal() {
-    document.getElementById("closingModal").style.display = "block";
+    try {
+        console.log("openModal called");
+        document.getElementById("closingModal").style.display = "block";
+    } catch (error) {
+        console.error("Error in openModal:", error);
+        alert("Error opening modal: " + error.message);
+    }
 }
 
 function closeModal() {
-    document.getElementById("closingModal").style.display = "none";
+    try {
+        console.log("closeModal called");
+        document.getElementById("closingModal").style.display = "none";
+    } catch (error) {
+        console.error("Error in closeModal:", error);
+    }
 }
 
 function openProfileModal() {
-    const currentUser = localStorage.getItem("currentUser");
-    
-    document.getElementById("profileUsername").value = currentUser;
-    document.getElementById("newPassword").value = "";
-    
-    // Load profile photo if exists
-    loadProfilePhotoInModal();
-    
-    document.getElementById("profileModal").style.display = "block";
+    try {
+        console.log("openProfileModal called");
+        const currentUser = localStorage.getItem("currentUser");
+        
+        document.getElementById("profileUsername").value = currentUser;
+        document.getElementById("newPassword").value = "";
+        
+        // Load profile photo if exists
+        loadProfilePhotoInModal();
+        
+        document.getElementById("profileModal").style.display = "block";
+    } catch (error) {
+        console.error("Error in openProfileModal:", error);
+        alert("Error opening profile modal: " + error.message);
+    }
 }
 
 function closeProfileModal() {
@@ -859,7 +897,7 @@ function saveRecord() {
         closeModal();
     }, 1500);
 }
-}
+
 
 function clearForm() {
     // Clear all inputs
