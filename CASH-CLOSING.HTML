@@ -620,6 +620,7 @@ function addNewUser() {
             .then((userCredential) => {
                 // Create user account
                 const uid = userCredential.user.uid;
+                console.log("✓ Firebase auth created for: " + username);
                 
                 // Save user data to Firebase Realtime Database
                 return firebase.database().ref('users/' + uid).set({
@@ -628,7 +629,14 @@ function addNewUser() {
                     createdAt: new Date().toISOString(),
                     role: "user",
                     photo: null
-                }).then(() => ({ uid: uid, savedToFirebase: true }));
+                }).then(() => {
+                    console.log("✓ User data saved to Firebase database for UID: " + uid);
+                    return { uid: uid, savedToFirebase: true };
+                }).catch((dbError) => {
+                    console.error("❌ Firebase Database Error: " + dbError.message);
+                    console.error("Error code: " + dbError.code);
+                    throw dbError;
+                });
             })
             .then((result) => {
                 // Also save to localStorage for backup
@@ -652,15 +660,19 @@ function addNewUser() {
             })
             .catch((error) => {
                 // Firebase failed - show specific error
-                console.error("Firebase error: " + error.message);
+                console.error("❌ Firebase Error: " + error.message);
+                console.error("Error Code: " + error.code);
                 
                 if (error.code === 'auth/email-already-in-use') {
                     showMessage(messageBox, "❌ User already exists in Firebase. Try a different username.", "error");
                 } else if (error.code === 'auth/weak-password') {
                     showMessage(messageBox, "❌ Password too weak. Use at least 6 characters.", "error");
+                } else if (error.code === 'permission-denied') {
+                    showMessage(messageBox, "❌ Permission denied - Firebase Database rules issue", "error");
                 } else {
                     // Fall back to localStorage only
-                    console.log("Firebase unavailable, saving to localStorage only");
+                    console.log("⚠️ Firebase unavailable, saving to localStorage only");
+                    console.log("Error details: " + JSON.stringify(error));
                     users.push({
                         username: username,
                         password: password,
@@ -670,7 +682,7 @@ function addNewUser() {
                     
                     localStorage.setItem("users", JSON.stringify(users));
                     
-                    showMessage(messageBox, "⚠️ User created (local storage only - Firebase unavailable)", "warning");
+                    showMessage(messageBox, "⚠️ User created (local storage only - Firebase error: " + error.code + ")", "warning");
                     
                     setTimeout(function() {
                         closeAddUserModal();
