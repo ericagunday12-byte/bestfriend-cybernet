@@ -8,7 +8,30 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js"></script>
-<!-- Firebase Config - Load BEFORE other scripts -->
+<script>
+// Inline Firebase Configuration - Load immediately
+const firebaseConfig = {
+    apiKey: "AIzaSyDZAMrwljPLnS_Ipqj1Y0FLT4Hf4M64eRw",
+    authDomain: "bestfriend-cybernet.firebaseapp.com",
+    databaseURL: "https://bestfriend-cybernet-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "bestfriend-cybernet",
+    storageBucket: "bestfriend-cybernet.firebasestorage.app",
+    messagingSenderId: "949732764719",
+    appId: "1:949732764719:web:0ac195de9ad10d47abeada",
+    measurementId: "G-ZPQ1KL8MZG"
+};
+
+// Initialize Firebase immediately
+if (typeof firebase !== 'undefined') {
+    try {
+        firebase.initializeApp(firebaseConfig);
+        console.log("✓ Firebase initialized successfully");
+    } catch (error) {
+        console.error("Firebase initialization error: " + error.message);
+    }
+}
+</script>
+<!-- Firebase Config - Load as fallback -->
 <script src="firebase-config.js"></script>
 <style>
 
