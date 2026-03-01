@@ -755,60 +755,219 @@ function closeUserListModal() {
 }
 
 function loadUserList() {
-    const users = JSON.parse(localStorage.getItem("users")) || [];
     const tableBody = document.getElementById("userListTableBody");
+    const userRole = localStorage.getItem("userRole");
     
-    if (users.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="2" style="color: #999;">No users found</td></tr>';
-        return;
+    // If admin, load from Firebase; otherwise load from localStorage
+    if (userRole === "admin" && typeof firebase !== 'undefined' && firebase.database) {
+        console.log("Loading users from Firebase...");
+        
+        firebase.database().ref('users/').once('value')
+            .then((snapshot) => {
+                const firebaseUsers = snapshot.val();
+                console.log("Firebase users:", firebaseUsers);
+                
+                if (!firebaseUsers || Object.keys(firebaseUsers).length === 0) {
+                    console.log("No users found in Firebase");
+                    tableBody.innerHTML = '<tr><td colspan="2" style="color: #999;">No users found in Firebase</td></tr>';
+                    return;
+                }
+                
+                // Convert Firebase object to array
+                const usersArray = Object.keys(firebaseUsers).map(uid => ({
+                    uid: uid,
+                    username: firebaseUsers[uid].username,
+                    email: firebaseUsers[uid].email,
+                    role: firebaseUsers[uid].role,
+                    createdAt: firebaseUsers[uid].createdAt
+                }));
+                
+                // Display Firebase users
+                tableBody.innerHTML = usersArray.map((user) => {
+                    return `
+                        <tr>
+                            <td><strong>${user.username}</strong><br><small style="color: #999;">${user.email}</small></td>
+                            <td>
+                                <button class="delete-btn" onclick="deleteUser('${user.username}', '${user.uid}')">🗑️ Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+            })
+            .catch((error) => {
+                console.error("❌ Error loading users from Firebase: " + error.message);
+                console.log("Falling back to localStorage");
+                
+                // Fallback to localStorage
+                const users = JSON.parse(localStorage.getItem("users")) || [];
+                if (users.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="2" style="color: #999;">No users found</td></tr>';
+                    return;
+                }
+                
+                tableBody.innerHTML = users.map((user, index) => {
+                    return `
+                        <tr>
+                            <td><strong>${user.username}</strong></td>
+                            <td>
+                                <button class="delete-btn" onclick="deleteUser('${user.username}')">🗑️ Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+            });
+    } else {
+        // Non-admin users: load from localStorage only
+        const users = JSON.parse(localStorage.getItem("users")) || [];
+        
+        if (users.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="2" style="color: #999;">No users found</td></tr>';
+            return;
+        }
+        
+        tableBody.innerHTML = users.map((user, index) => {
+            return `
+                <tr>
+                    <td><strong>${user.username}</strong></td>
+                    <td>
+                        <button class="delete-btn" onclick="deleteUser('${user.username}')">🗑️ Delete</button>
+                    </td>
+                </tr>
+            `;
+        }).join("");
     }
-    
-    tableBody.innerHTML = users.map((user, index) => {
-        return `
-            <tr>
-                <td><strong>${user.username}</strong></td>
-                <td>
-                    <button class="delete-btn" onclick="deleteUser('${user.username}')">🗑️ Delete</button>
-                </td>
-            </tr>
-        `;
-    }).join("");
 }
 
 function searchUsers() {
     const searchInput = document.getElementById("userSearchInput").value.toLowerCase();
-    const users = JSON.parse(localStorage.getItem("users")) || [];
     const tableBody = document.getElementById("userListTableBody");
+    const userRole = localStorage.getItem("userRole");
     
-    let displayUsers = users;
-    
-    if (searchInput.trim() !== "") {
-        displayUsers = users.filter(user => user.username.toLowerCase().includes(searchInput));
+    // If admin, search Firebase users; otherwise search localStorage
+    if (userRole === "admin" && typeof firebase !== 'undefined' && firebase.database) {
+        firebase.database().ref('users/').once('value')
+            .then((snapshot) => {
+                const firebaseUsers = snapshot.val();
+                
+                if (!firebaseUsers || Object.keys(firebaseUsers).length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="2" style="color: #999;">No users found</td></tr>';
+                    return;
+                }
+                
+                // Convert Firebase object to array
+                let usersArray = Object.keys(firebaseUsers).map(uid => ({
+                    uid: uid,
+                    username: firebaseUsers[uid].username,
+                    email: firebaseUsers[uid].email,
+                    role: firebaseUsers[uid].role
+                }));
+                
+                // Filter by search input
+                if (searchInput.trim() !== "") {
+                    usersArray = usersArray.filter(user => 
+                        user.username.toLowerCase().includes(searchInput)
+                    );
+                }
+                
+                if (usersArray.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="2" style="color: #999;">No users found</td></tr>';
+                    return;
+                }
+                
+                tableBody.innerHTML = usersArray.map((user) => {
+                    return `
+                        <tr>
+                            <td><strong>${user.username}</strong><br><small style="color: #999;">${user.email}</small></td>
+                            <td>
+                                <button class="delete-btn" onclick="deleteUser('${user.username}', '${user.uid}')">🗑️ Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+            })
+            .catch((error) => {
+                console.error("Error searching Firebase: " + error.message);
+                // Fallback to localStorage search
+                const users = JSON.parse(localStorage.getItem("users")) || [];
+                let displayUsers = users;
+                
+                if (searchInput.trim() !== "") {
+                    displayUsers = users.filter(user => user.username.toLowerCase().includes(searchInput));
+                }
+                
+                if (displayUsers.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="2" style="color: #999;">No users found</td></tr>';
+                    return;
+                }
+                
+                tableBody.innerHTML = displayUsers.map((user) => {
+                    return `
+                        <tr>
+                            <td><strong>${user.username}</strong></td>
+                            <td>
+                                <button class="delete-btn" onclick="deleteUser('${user.username}')">🗑️ Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+            });
+    } else {
+        // Non-admin: search localStorage
+        const users = JSON.parse(localStorage.getItem("users")) || [];
+        let displayUsers = users;
+        
+        if (searchInput.trim() !== "") {
+            displayUsers = users.filter(user => user.username.toLowerCase().includes(searchInput));
+        }
+        
+        if (displayUsers.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="2" style="color: #999;">No users found</td></tr>';
+            return;
+        }
+        
+        tableBody.innerHTML = displayUsers.map((user) => {
+            return `
+                <tr>
+                    <td><strong>${user.username}</strong></td>
+                    <td>
+                        <button class="delete-btn" onclick="deleteUser('${user.username}')">🗑️ Delete</button>
+                    </td>
+                </tr>
+            `;
+        }).join("");
     }
-    
-    if (displayUsers.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="2" style="color: #999;">No users found</td></tr>';
-        return;
-    }
-    
-    tableBody.innerHTML = displayUsers.map((user, index) => {
-        return `
-            <tr>
-                <td><strong>${user.username}</strong></td>
-                <td>
-                    <button class="delete-btn" onclick="deleteUser('${user.username}')">🗑️ Delete</button>
-                </td>
-            </tr>
-        `;
-    }).join("");
 }
 
-function deleteUser(username) {
+function deleteUser(username, uid) {
     if (confirm(`Are you sure you want to delete user "${username}"?`)) {
-        let users = JSON.parse(localStorage.getItem("users")) || [];
-        users = users.filter(u => u.username !== username);
-        localStorage.setItem("users", JSON.stringify(users));
-        loadUserList();
+        const userRole = localStorage.getItem("userRole");
+        
+        // If admin and Firebase is available, delete from Firebase
+        if (userRole === "admin" && uid && typeof firebase !== 'undefined' && firebase.database) {
+            console.log("Deleting user from Firebase: " + uid);
+            
+            firebase.database().ref('users/' + uid).remove()
+                .then(() => {
+                    console.log("✓ User deleted from Firebase");
+                    
+                    // Also remove from localStorage
+                    let users = JSON.parse(localStorage.getItem("users")) || [];
+                    users = users.filter(u => u.username !== username);
+                    localStorage.setItem("users", JSON.stringify(users));
+                    
+                    loadUserList();
+                })
+                .catch((error) => {
+                    console.error("❌ Error deleting user from Firebase: " + error.message);
+                    alert("Error deleting user: " + error.message);
+                });
+        } else {
+            // Non-admin or no Firebase: delete from localStorage only
+            let users = JSON.parse(localStorage.getItem("users")) || [];
+            users = users.filter(u => u.username !== username);
+            localStorage.setItem("users", JSON.stringify(users));
+            loadUserList();
+        }
     }
 }
 
