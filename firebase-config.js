@@ -4,7 +4,7 @@
 const firebaseConfig = {
     apiKey: "AIzaSyDZAMrwljPLnS_Ipqj1Y0FLT4Hf4M64eRw",
     authDomain: "bestfriend-cybernet.firebaseapp.com",
-    databaseURL: "https://bestfriend-cybernet-default-rtdb.asia-southeast1.firebasedatabase.app",
+    databaseURL: "https://bestfriend-cybernet-default-rtdb.firebaseio.com",
     projectId: "bestfriend-cybernet",
     storageBucket: "bestfriend-cybernet.firebasestorage.app",
     messagingSenderId: "949732764719",
@@ -12,14 +12,20 @@ const firebaseConfig = {
     measurementId: "G-ZPQ1KL8MZG"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// Initialize Firebase only if not already initialized
+if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
-// Get Firebase services
-const auth = firebase.auth();
-const database = firebase.database();
-const storage = firebase.storage();
+// Get Firebase services if available
+if (typeof firebase !== 'undefined') {
+    const auth = firebase.auth();
+    const database = firebase.database();
+    const storage = firebase.storage();
 
-// Enable offline persistence for Realtime Database
-firebase.database().ref().keepSynced(true);
+    // Enable offline persistence for Realtime Database
+    if (database) {
+        database.ref().keepSynced(true);
+    }
+}
 

@@ -16,7 +16,7 @@ if (typeof firebase === 'undefined') {
     const firebaseConfig = {
         apiKey: "AIzaSyDZAMrwljPLnS_Ipqj1Y0FLT4Hf4M64eRw",
         authDomain: "bestfriend-cybernet.firebaseapp.com",
-        databaseURL: "https://bestfriend-cybernet-default-rtdb.asia-southeast1.firebasedatabase.app",
+        databaseURL: "https://bestfriend-cybernet-default-rtdb.firebaseio.com",
         projectId: "bestfriend-cybernet",
         storageBucket: "bestfriend-cybernet.firebasestorage.app",
         messagingSenderId: "949732764719",
@@ -647,8 +647,13 @@ function addNewUser() {
                 const uid = userCredential.user.uid;
                 console.log("✓ Firebase auth created for: " + username);
                 
-                // Save user data to Firebase Realtime Database
-                return firebase.database().ref('users/' + uid).set({
+                // Create a timeout promise (5 seconds)
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error("Database write timeout - taking too long")), 5000)
+                );
+                
+                // Save user data to Firebase Realtime Database with timeout
+                const dbWritePromise = firebase.database().ref('users/' + uid).set({
                     username: username,
                     email: email,
                     createdAt: new Date().toISOString(),
@@ -657,11 +662,15 @@ function addNewUser() {
                 }).then(() => {
                     console.log("✓ User data saved to Firebase database for UID: " + uid);
                     return { uid: uid, savedToFirebase: true };
-                }).catch((dbError) => {
-                    console.error("❌ Firebase Database Error: " + dbError.message);
-                    console.error("Error code: " + dbError.code);
-                    throw dbError;
                 });
+                
+                // Race between database write and timeout
+                return Promise.race([dbWritePromise, timeoutPromise])
+                    .catch((dbError) => {
+                        console.error("❌ Firebase Database Error: " + dbError.message);
+                        console.error("Error code: " + dbError.code);
+                        throw dbError;
+                    });
             })
             .then((result) => {
                 // Also save to localStorage for backup
