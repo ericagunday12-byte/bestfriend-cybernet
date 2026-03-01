@@ -203,45 +203,45 @@ document.getElementById("loginForm").addEventListener("submit", function(e) {
             window.location.href = "CASH-CLOSING.HTML";
         }, 1500);
     } else {
-        // Authenticate with Firebase
-        firebase.auth().signInWithEmailAndPassword(username + "@bestfriend.local", password)
-            .then((userCredential) => {
-                // Login with Firebase successful
-                successMessage.textContent = "Login successful! Redirecting...";
-                successMessage.style.display = "block";
-                
-                // Store user session
-                localStorage.setItem("userRole", "user");
-                localStorage.setItem("currentUser", username);
-                localStorage.setItem("firebaseUID", userCredential.user.uid);
-                
-                // Redirect after 1.5 seconds
-                setTimeout(function() {
-                    window.location.href = "CASH-CLOSING.HTML";
-                }, 1500);
-            })
-            .catch((error) => {
-                // First check localStorage for users (backward compatibility)
-                const users = JSON.parse(localStorage.getItem("users")) || [];
-                const user = users.find(u => u.username === username && u.password === password);
-                
-                if (user) {
+        // First check localStorage for users (primary authentication method)
+        const users = JSON.parse(localStorage.getItem("users")) || [];
+        const user = users.find(u => u.username === username && u.password === password);
+        
+        if (user) {
+            successMessage.textContent = "Login successful! Redirecting...";
+            successMessage.style.display = "block";
+            
+            // Store user session
+            localStorage.setItem("userRole", "user");
+            localStorage.setItem("currentUser", username);
+            
+            // Redirect after 1.5 seconds
+            setTimeout(function() {
+                window.location.href = "CASH-CLOSING.HTML";
+            }, 1500);
+        } else {
+            // If not in localStorage, try Firebase as fallback
+            firebase.auth().signInWithEmailAndPassword(username + "@bestfriend.local", password)
+                .then((userCredential) => {
+                    // Login with Firebase successful
                     successMessage.textContent = "Login successful! Redirecting...";
                     successMessage.style.display = "block";
                     
                     // Store user session
                     localStorage.setItem("userRole", "user");
                     localStorage.setItem("currentUser", username);
+                    localStorage.setItem("firebaseUID", userCredential.user.uid);
                     
                     // Redirect after 1.5 seconds
                     setTimeout(function() {
                         window.location.href = "CASH-CLOSING.HTML";
                     }, 1500);
-                } else {
+                })
+                .catch((error) => {
                     errorMessage.textContent = "Invalid username or password";
                     errorMessage.style.display = "block";
-                }
-            });
+                });
+        }
     }
 
     // Clear password field
