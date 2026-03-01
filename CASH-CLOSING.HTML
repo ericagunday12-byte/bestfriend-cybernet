@@ -143,6 +143,20 @@
         border: 1px solid #f5c6cb;
         display: block;
     }
+
+    .message.info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+        display: block;
+    }
+
+    .message.warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+        display: block;
+    }
     
     .modal {
         display: none;
@@ -595,9 +609,12 @@ function addNewUser() {
         return;
     }
     
-    // Try to save to Firebase if available
+    // Check if Firebase is properly initialized
     if (typeof firebase !== 'undefined' && firebase.auth && firebase.database) {
         const email = username + "@bestfriend.local";
+        
+        // Show loading message
+        showMessage(messageBox, "⏳ Creating user in Firebase...", "info");
         
         firebase.auth().createUserWithEmailAndPassword(email, password)
             .then((userCredential) => {
@@ -611,19 +628,21 @@ function addNewUser() {
                     createdAt: new Date().toISOString(),
                     role: "user",
                     photo: null
-                });
+                }).then(() => ({ uid: uid, savedToFirebase: true }));
             })
-            .then(() => {
-                // Also save to localStorage for backward compatibility
+            .then((result) => {
+                // Also save to localStorage for backup
                 users.push({
                     username: username,
                     password: password,
-                    role: "user"
+                    role: "user",
+                    firebaseUID: result.uid,
+                    savedToFirebase: true
                 });
                 localStorage.setItem("users", JSON.stringify(users));
                 
                 // Show success message
-                showMessage(messageBox, "✓ User created successfully!", "success");
+                showMessage(messageBox, "✓ User created successfully in Firebase!", "success");
                 
                 // Close modal after 1.5 seconds
                 setTimeout(function() {
@@ -632,34 +651,46 @@ function addNewUser() {
                 }, 1500);
             })
             .catch((error) => {
-                // If Firebase fails, fall back to localStorage only
-                console.log("Firebase error, using localStorage: " + error.message);
-                users.push({
-                    username: username,
-                    password: password,
-                    role: "user"
-                });
+                // Firebase failed - show specific error
+                console.error("Firebase error: " + error.message);
                 
-                localStorage.setItem("users", JSON.stringify(users));
-                
-                showMessage(messageBox, "✓ User created successfully!", "success");
-                
-                setTimeout(function() {
-                    closeAddUserModal();
-                    loadUserList();
-                }, 1500);
+                if (error.code === 'auth/email-already-in-use') {
+                    showMessage(messageBox, "❌ User already exists in Firebase. Try a different username.", "error");
+                } else if (error.code === 'auth/weak-password') {
+                    showMessage(messageBox, "❌ Password too weak. Use at least 6 characters.", "error");
+                } else {
+                    // Fall back to localStorage only
+                    console.log("Firebase unavailable, saving to localStorage only");
+                    users.push({
+                        username: username,
+                        password: password,
+                        role: "user",
+                        savedToFirebase: false
+                    });
+                    
+                    localStorage.setItem("users", JSON.stringify(users));
+                    
+                    showMessage(messageBox, "⚠️ User created (local storage only - Firebase unavailable)", "warning");
+                    
+                    setTimeout(function() {
+                        closeAddUserModal();
+                        loadUserList();
+                    }, 1500);
+                }
             });
     } else {
         // Firebase not available, use localStorage only
+        console.warn("Firebase not initialized");
         users.push({
             username: username,
             password: password,
-            role: "user"
+            role: "user",
+            savedToFirebase: false
         });
         
         localStorage.setItem("users", JSON.stringify(users));
         
-        showMessage(messageBox, "✓ User created successfully!", "success");
+        showMessage(messageBox, "⚠️ User created (local storage only - Firebase not initialized)", "warning");
         
         setTimeout(function() {
             closeAddUserModal();
